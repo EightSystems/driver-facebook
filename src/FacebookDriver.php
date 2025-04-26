@@ -76,7 +76,7 @@ class FacebookDriver extends HttpDriver implements VerifiesService
     /** @var DriverEventInterface */
     protected $driverEvent;
 
-    protected $facebookProfileEndpoint = 'https://graph.facebook.com/v3.0/';
+    protected $facebookProfileEndpoint = 'https://graph.facebook.com/v22.0/';
 
     /** @var bool If the incoming request is a FB postback */
     protected $isPostback = false;
@@ -381,12 +381,18 @@ class FacebookDriver extends HttpDriver implements VerifiesService
         if ($message instanceof Question) {
             $parameters['message'] = $this->convertQuestion($message);
         } elseif (is_object($message) && in_array(get_class($message), $this->templates)) {
+            /**
+             * @var mixed $message
+             */
             $parameters['message'] = $message->toArray();
         } elseif ($message instanceof OutgoingMessage) {
             $attachment = $message->getAttachment();
             if (! is_null($attachment) && in_array(get_class($attachment), $this->supportedAttachments)) {
                 $attachmentType = strtolower(basename(str_replace('\\', '/', get_class($attachment))));
                 unset($parameters['message']['text']);
+                /**
+                 * @var Video|Audio|Image|File $attachment
+                 */
                 $parameters['message']['attachment'] = [
                     'type' => $attachmentType,
                     'payload' => [
